@@ -4,34 +4,36 @@ name: Build Android APK
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up JDK
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
 
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v4
+
       - name: Extract project ZIP
         run: |
           unzip -q SwiftStockfishAndroid-source.zip -d extracted
-          find extracted -name gradlew -type f
+          find extracted -name build.gradle.kts -type f
 
       - name: Build APK
         run: |
-          ROOT="$(find extracted -name gradlew -type f | head -n 1 | xargs dirname)"
+          ROOT="$(find extracted -name settings.gradle.kts -type f | head -n 1 | xargs dirname)"
           test -n "$ROOT"
           cd "$ROOT"
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
