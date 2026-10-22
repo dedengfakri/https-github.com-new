@@ -3,7 +3,9 @@ name: Build Android APK
 on:
 workflow_dispatch:
 push:
-branches: [main, master]
+branches:
+- main
+- master
 
 permissions:
 contents: read
@@ -16,7 +18,7 @@ steps:
   - name: Checkout repository
     uses: actions/checkout@v4
 
-  - name: Set up Java 17
+  - name: Set up Java
     uses: actions/setup-java@v4
     with:
       distribution: temurin
@@ -24,21 +26,20 @@ steps:
 
   - name: Set up Android SDK
     uses: android-actions/setup-android@v4
-    with:
-      packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+
+  - name: Install Android packages
+    run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
   - name: Set up Gradle
     uses: gradle/actions/setup-gradle@v4
 
-  - name: Build Debug APK
-    shell: bash
+  - name: Build APK
     run: |
-      if [ -f ./gradlew ]; then
+      if [ -f "./gradlew" ]; then
         chmod +x ./gradlew
         ./gradlew --no-daemon assembleDebug
       else
-        echo "ERROR: gradlew tidak ditemukan di root proyek."
-        echo "Pastikan proyek berisi Gradle Wrapper."
+        echo "ERROR: File gradlew tidak ditemukan"
         exit 1
       fi
 
