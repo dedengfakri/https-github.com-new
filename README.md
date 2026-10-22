@@ -1,14 +1,10 @@
-# TitanNative Lite — Android project
+# TITAN NATIVE LITE — versi perbaikan awal
 
-A lightweight Android 10-compatible starter that recreates a dark TitanNative-inspired interface and a tappable chessboard.
+Aplikasi Android Java mandiri dengan papan 8×8, posisi awal 32 bidak, pemeriksaan langkah legal (termasuk rokade dan en passant), undo, reset, dan analisis **sederhana** berbasis evaluasi material dua ply.
 
-## Important limitations
-- This is an original lightweight UI clone/starter, not a byte-for-byte copy of TitanNative.
-- The ANALYZE button is a placeholder. A Stockfish engine and legal chess move handling are **not included** yet.
-- Do not use engine assistance during live online games where it is prohibited.
-- minSdk 23 supports Android 6.0+, including Android 10.
+**Penting:** Ini **belum** menggunakan Stockfish dan bukan salinan fitur penuh aplikasi referensi. Label analisis sengaja menyatakan BASIC ANALYSIS agar tidak menyesatkan. Promosi pion otomatis menjadi menteri. Belum diuji pada perangkat Android nyata.
 
 ## Build
-Open this folder in Android Studio (JDK 17, Android SDK platform 35, Android Gradle Plugin 8.7.3), then choose **Build > Build APK(s)**.
+Buka folder proyek sebagai Android Gradle project atau unggah seluruh isinya ke root repository GitHub. Jalankan GitHub Actions > Build Android APK > Run workflow, lalu unduh artifact `TitanNativeFixed-debug-apk` setelah build sukses.
 
-Or use the included GitHub Actions workflow after uploading the project contents to a GitHub repository. It builds a debug APK and publishes it as an artifact.
+Jangan unggah ZIP sebagai satu file saja ke root repository: ekstrak terlebih dahulu sehingga folder `app`, `.github` dan file Gradle ada di root.
