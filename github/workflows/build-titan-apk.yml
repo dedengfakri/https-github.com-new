@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Ambil proyek
@@ -17,8 +17,7 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Siapkan Android SDK
-        uses: android-actions/setup-android@v3
+      
 
       - name: Siapkan Gradle
         uses: gradle/actions/setup-gradle@v4
