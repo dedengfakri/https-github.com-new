@@ -2,56 +2,27 @@ package com.example.titannativelite;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.view.Gravity;
-import android.view.View;
-import android.widget.*;
+import android.graphics.*;
 import android.graphics.drawable.GradientDrawable;
+import android.view.*;
+import android.widget.*;
+import java.util.*;
 
 public class MainActivity extends Activity {
-    int bg=Color.rgb(13,19,28), panel=Color.rgb(23,31,43), green=Color.rgb(80,150,105);
-    TextView status, moveText;
-    Board board;
-    String[] pieces={"♜","♞","♝","♛","♚","♝","♞","♜","♟","♟","♟","♟","♟","♟","♟","♟","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","♙","♙","♙","♙","♙","♙","♙","♙","♖","♘","♗","♕","♔","♗","♘","♖"};
-    int selected=-1, moveCount=0;
-    @Override public void onCreate(Bundle b){super.onCreate(b); getWindow().setStatusBarColor(bg);getWindow().setNavigationBarColor(bg); build();}
-    GradientDrawable shape(int color,int radius){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(radius);return d;}
-    TextView text(String s,int size,int color,boolean bold){TextView t=new TextView(this);t.setText(s);t.setTextSize(size);t.setTextColor(color);if(bold)t.setTypeface(null,Typeface.BOLD);return t;}
-    void build(){
-        LinearLayout root=new LinearLayout(this);root.setOrientation(1);root.setPadding(16,14,16,12);root.setBackgroundColor(bg);
-        TextView title=text("TITAN  /  NATIVE LITE",20,Color.WHITE,true);root.addView(title);
-        TextView subtitle=text("CHESS ANALYSIS  •  ANDROID",11,Color.rgb(145,163,180),true); subtitle.setPadding(0,3,0,16);root.addView(subtitle);
-        LinearLayout top=new LinearLayout(this);top.setGravity(Gravity.CENTER_VERTICAL);top.setPadding(12,10,12,10);top.setBackground(shape(panel,14));
-        TextView badge=text("● READY",12,Color.rgb(130,220,160),true);top.addView(badge,new LinearLayout.LayoutParams(0,-2,1));
-        TextView mode=text("LOCAL BOARD",11,Color.LTGRAY,true);top.addView(mode);root.addView(top);
-        board=new Board();LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,0,1);bp.topMargin=14;bp.bottomMargin=12;root.addView(board,bp);
-        LinearLayout eval=new LinearLayout(this);eval.setOrientation(1);eval.setPadding(14,12,14,12);eval.setBackground(shape(panel,14));
-        TextView cap=text("BEST MOVE  /  DEMO",10,Color.rgb(145,163,180),true);eval.addView(cap);
-        moveText=text("Tap a piece, then tap a square",15,Color.WHITE,true);moveText.setPadding(0,6,0,0);eval.addView(moveText);
-        status=text("Board ready • offline interface",11,Color.LTGRAY,false);status.setPadding(0,7,0,0);eval.addView(status);root.addView(eval);
-        LinearLayout buttons=new LinearLayout(this);buttons.setPadding(0,12,0,0);
-        String[] names={"ANALYZE","UNDO","RESET"};
-        for(String n:names){Button b=new Button(this);b.setText(n);b.setTextSize(11);b.setTextColor(Color.WHITE);b.setAllCaps(false);b.setBackground(shape(n.equals("ANALYZE")?green:panel,12));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,52,1);p.setMargins(3,0,3,0);buttons.addView(b,p);
-            b.setOnClickListener(v->{if(n.equals("RESET")){reset();}else if(n.equals("UNDO")){selected=-1;status.setText("Undo demo: select another move");board.invalidate();}else{moveText.setText("Engine not connected");status.setText("This clone is a UI starter; Stockfish engine must be added separately.");}});
-        }root.addView(buttons);setContentView(root);
+    final int bg=Color.rgb(13,19,28),panel=Color.rgb(23,31,43),green=Color.rgb(80,150,105);
+    Chess chess=new Chess(); ChessBoard board; TextView status,analysis; int selected=-1;
+    TextView label(String s,int size){TextView t=new TextView(this);t.setText(s);t.setTextColor(Color.WHITE);t.setTextSize(size);return t;}
+    GradientDrawable background(int color){GradientDrawable d=new GradientDrawable();d.setColor(color);d.setCornerRadius(16);return d;}
+    @Override public void onCreate(Bundle b){super.onCreate(b);getWindow().setStatusBarColor(bg);getWindow().setNavigationBarColor(bg);LinearLayout root=new LinearLayout(this);root.setOrientation(1);root.setPadding(16,16,16,16);root.setBackgroundColor(bg);
+        TextView title=label("TITAN  /  NATIVE LITE",20);title.setTypeface(null,1);root.addView(title);
+        TextView sub=label("CHESS ANALYSIS  •  ANDROID",11);sub.setTextColor(Color.LTGRAY);sub.setPadding(0,6,0,12);root.addView(sub);
+        status=label("● READY  •  Giliran putih",12);status.setPadding(12,12,12,12);status.setBackground(background(panel));root.addView(status);
+        board=new ChessBoard();LinearLayout.LayoutParams bp=new LinearLayout.LayoutParams(-1,0,1);bp.topMargin=12;bp.bottomMargin=12;root.addView(board,bp);
+        LinearLayout card=new LinearLayout(this);card.setOrientation(1);card.setPadding(14,12,14,12);card.setBackground(background(panel));TextView heading=label("BEST MOVE  /  BASIC ANALYSIS",11);heading.setTextColor(Color.LTGRAY);card.addView(heading);analysis=label("Pilih bidak, lalu petak tujuan",15);analysis.setPadding(0,8,0,0);card.addView(analysis);root.addView(card);
+        LinearLayout row=new LinearLayout(this);row.setPadding(0,12,0,0);for(String name:new String[]{"ANALYZE","UNDO","RESET"}){Button button=new Button(this);button.setText(name);button.setTextSize(12);button.setAllCaps(false);button.setTextColor(Color.WHITE);button.setBackground(background(name.equals("ANALYZE")?green:panel));LinearLayout.LayoutParams p=new LinearLayout.LayoutParams(0,54,1);p.setMargins(3,0,3,0);row.addView(button,p);button.setOnClickListener(v->{selected=-1;if(name.equals("RESET")){chess.reset();analysis.setText("Posisi awal");}else if(name.equals("UNDO")){analysis.setText(chess.undo()?"Langkah dikembalikan":"Belum ada langkah");}else{analysis.setText("Menghitung...");new Thread(()->{String result=chess.bestMove();runOnUiThread(()->analysis.setText(result));}).start();}status.setText("● "+chess.result());board.invalidate();});}root.addView(row);setContentView(root);
     }
-    void reset(){String[] start={"♜","♞","♝","♛","♚","♝","♞","♜","♟","♟","♟","♟","♟","♟","♟","♟","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","♙","♙","♙","♙","♙","♙","♙","♙","♖","♘","♗","♕","♔","♗","♘","♖"};pieces=start;selected=-1;moveCount=0;moveText.setText("Tap a piece, then tap a square");status.setText("Board reset");board.invalidate();}
-    class Board extends View{
-        Paint p=new Paint(3); int light=Color.rgb(224,225,205), dark=Color.rgb(93,133,111);
-        Board(){super(MainActivity.this);}
-        protected void onDraw(Canvas c){super.onDraw(c);float size=Math.min(getWidth(),getHeight());float cell=size/8f;float ox=(getWidth()-size)/2,oy=(getHeight()-size)/2;
-            for(int r=0;r<8;r++)for(int col=0;col<8;col++){int idx=r*8+col; p.setColor(((r+col)%2==0)?light:dark);c.drawRect(ox+col*cell,oy+r*cell,ox+(col+1)*cell,oy+(r+1)*cell,p);
-                if(selected==idx){p.setColor(Color.argb(115,255,205,60));c.drawRect(ox+col*cell,oy+r*cell,ox+(col+1)*cell,oy+(r+1)*cell,p);}
-                String s=pieces[idx];if(s!=null&&!s.isEmpty()){p.setTextAlign(Paint.Align.CENTER);p.setTextSize(cell*.72f);p.setTypeface(Typeface.create("serif",Typeface.NORMAL));p.setColor((s.equals("♟")||s.equals("♜")||s.equals("♞")||s.equals("♝")||s.equals("♛")||s.equals("♚"))?Color.rgb(25,31,35):Color.WHITE);c.drawText(s,ox+(col+.5f)*cell,oy+(r+.76f)*cell,p);}
-            }}
-        public boolean onTouchEvent(android.view.MotionEvent e){if(e.getAction()!=1)return true;float size=Math.min(getWidth(),getHeight()),cell=size/8f,ox=(getWidth()-size)/2,oy=(getHeight()-size)/2;int col=(int)((e.getX()-ox)/cell),r=(int)((e.getY()-oy)/cell);if(r<0||r>7||col<0||col>7)return true;int idx=r*8+col;
-            if(selected<0){selected=idx;status.setText("Square selected: "+(char)('a'+col)+(8-r));}
-            else if(selected==idx){selected=-1;status.setText("Selection cleared");}
-            else {pieces[idx]=pieces[selected];pieces[selected]="";selected=-1;moveCount++;moveText.setText("Move "+moveCount+" • board updated");status.setText("Demo move only — legality is not checked");}
-            invalidate();return true;}
+    class ChessBoard extends View {Paint paint=new Paint(3);String symbols="";ChessBoard(){super(MainActivity.this);}protected void onDraw(Canvas canvas){super.onDraw(canvas);float size=Math.min(getWidth(),getHeight()),cell=size/8f,ox=(getWidth()-size)/2,oy=(getHeight()-size)/2;for(int r=0;r<8;r++)for(int c=0;c<8;c++){int i=r*8+c;paint.setColor((r+c)%2==0?Color.rgb(225,226,206):Color.rgb(95,135,112));canvas.drawRect(ox+c*cell,oy+r*cell,ox+(c+1)*cell,oy+(r+1)*cell,paint);if(i==selected){paint.setColor(0x99FFCE3D);canvas.drawRect(ox+c*cell,oy+r*cell,ox+(c+1)*cell,oy+(r+1)*cell,paint);}char piece=chess.squares[i];String symbol=pieceSymbol(piece);if(!symbol.isEmpty()){paint.setTypeface(Typeface.create("serif",Typeface.NORMAL));paint.setTextSize(cell*.77f);paint.setTextAlign(Paint.Align.CENTER);paint.setColor(Character.isUpperCase(piece)?Color.WHITE:Color.rgb(20,25,29));canvas.drawText(symbol,ox+(c+.5f)*cell,oy+(r+.78f)*cell,paint);}}}
+        String pieceSymbol(char p){switch(p){case 'K':return "♔";case 'Q':return "♕";case 'R':return "♖";case 'B':return "♗";case 'N':return "♘";case 'P':return "♙";case 'k':return "♚";case 'q':return "♛";case 'r':return "♜";case 'b':return "♝";case 'n':return "♞";case 'p':return "♟";default:return "";}}
+        public boolean onTouchEvent(android.view.MotionEvent e){if(e.getAction()!=MotionEvent.ACTION_UP)return true;float size=Math.min(getWidth(),getHeight()),cell=size/8f,ox=(getWidth()-size)/2,oy=(getHeight()-size)/2;float x=e.getX()-ox,y=e.getY()-oy;if(x<0||y<0||x>=size||y>=size)return true;int idx=(int)(y/cell)*8+(int)(x/cell);if(selected<0){if(Chess.mine(chess.squares[idx],chess.whiteTurn))selected=idx;}else{if(selected==idx)selected=-1;else if(chess.move(selected,idx)){analysis.setText("Langkah dimainkan");selected=-1;}else if(Chess.mine(chess.squares[idx],chess.whiteTurn))selected=idx;else{analysis.setText("Langkah tidak sah");selected=-1;}}status.setText("● "+chess.result());invalidate();return true;}
     }
 }
