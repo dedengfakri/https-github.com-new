@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.titannativelite"
+    namespace = "com.example.titannativelite"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.titannativelite"
+        applicationId = "com.example.titannativelite"
         minSdk = 23
-        targetSdk = 35
+        targetSdk = 28
         versionCode = 1
         versionName = "1.0"
     }
